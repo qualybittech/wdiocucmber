@@ -19,13 +19,12 @@ class emailyaLoginPage{
     public get loginHeader(){
         return $('//h1[contains(text(),"Login")]')
     }
+
     public async emailyaLogin(emailyaUser : string, emailyaPassword : string){
         await this.emailID.setValue(emailyaUser);
-        await this.emailID.setValue(emailyaPassword);
+        await this.password.setValue(emailyaPassword);
         await this.loginbutton.click();
-    }
-
-    
+    }  
 }
 
 export default new emailyaLoginPage();

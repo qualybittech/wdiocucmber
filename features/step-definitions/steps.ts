@@ -1,4 +1,5 @@
 import { Given, When, Then } from '@wdio/cucumber-framework';
+import dashboardPage from '../pageobjects/dashboard.page';
 import emailyaLoginPage from '../pageobjects/emailya.login.page';
 
 import LoginPage from '../pageobjects/login.page';
@@ -32,5 +33,10 @@ When(/^I login with (.*) and (.*)/, async (useremail,emailyapassword) => {
 
 Given('I am on emailya login page', async () => {
   await emailyaLoginPage.emailyaAppLaunch('https://www.app.emailya.io/invite')
+})
+
+Then(/^I should verify dashboard contents (.*) and (.*)/,async(username,creditamount)=>{
+  await expect(dashboardPage.dashboardHeading).toHaveTextContaining(username)
+  await expect(dashboardPage.dashboardHeading).toContain(creditamount)
 })
 
