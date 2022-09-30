@@ -1,4 +1,6 @@
 import type { Options } from '@wdio/types'
+let baseUrl ='https://stagingv2.vetology.net/';
+
 
 export const config: Options.Testrunner = {
     //
@@ -18,6 +20,7 @@ export const config: Options.Testrunner = {
     // If you need to configure how ts-node runs please use the
     // environment variables for ts-node or use wdio config's autoCompileOpts section.
     //
+
 
     autoCompileOpts: {
         autoCompile: true,
@@ -50,7 +53,7 @@ export const config: Options.Testrunner = {
     // will be called from there.
     //
     specs: [
-        './features/**/*.feature'
+        './src/features/**/*.feature'
     ],
     // Patterns to exclude.
     exclude: [
@@ -78,20 +81,30 @@ export const config: Options.Testrunner = {
     // Sauce Labs platform configurator - a great tool to configure your capabilities:
     // https://saucelabs.com/platform/platform-configurator
     //
-    capabilities: [{
+    capabilities: [
+        {
     
         // maxInstances can get overwritten per capability. So if you have an in-house Selenium
         // grid with only 5 firefox instances available you can make sure that not more than
         // 5 instances get started at a time.
-        maxInstances: 5,
+        
+        maxInstances: 1,
         //
         browserName: 'chrome',
-        acceptInsecureCerts: true
+        acceptInsecureCerts: true,
         // If outputDir is provided WebdriverIO can capture driver session logs
         // it is possible to configure which logTypes to include/exclude.
         // excludeDriverLogs: ['*'], // pass '*' to exclude all driver session logs
         // excludeDriverLogs: ['bugreport', 'server'],
-    }],
+    },
+/*{
+    maxInstances: 1,
+    //
+    browserName: 'firefox',
+    //browserName: 'MicrosoftEdge',
+    acceptInsecureCerts: true,
+    
+}*/],
     //
     // ===================
     // Test Configurations
@@ -123,7 +136,7 @@ export const config: Options.Testrunner = {
     // with `/`, the base url gets prepended, not including the path portion of your baseUrl.
     // If your `url` parameter starts without a scheme or `/` (like `some/path`), the base url
     // gets prepended directly.
-    baseUrl: 'http://localhost',
+    baseUrl,
     //
     // Default timeout for all waitFor* commands.
     waitforTimeout: 10000,
@@ -139,7 +152,7 @@ export const config: Options.Testrunner = {
     // Services take over a specific job you don't want to take care of. They enhance
     // your test setup with almost no effort. Unlike plugins, they don't add new
     // commands. Instead, they hook themselves up into the test process.
-    services: ['chromedriver'],
+    services: ['selenium-standalone'],
     
     // Framework you want to run your specs with.
     // The following are supported: Mocha, Jasmine, and Cucumber
@@ -161,14 +174,15 @@ export const config: Options.Testrunner = {
     // Test reporter for stdout.
     // The only one supported by default is 'dot'
     // see also: https://webdriver.io/docs/dot-reporter
-    reporters: ['spec'],
-
+    reporters: [['allure',{outputDir: 'allure-results',
+    disableWebdriverStepsReporting: false,
+    disableWebdriverScreenshotsReporting: false,}], 'spec'],
 
     //
     // If you are using Cucumber you need to specify the location of your step definitions.
     cucumberOpts: {
         // <string[]> (file/dir) require files before executing features
-        require: ['./features/step-definitions/steps.ts'],
+        require: ['./src/step-definitions/steps.ts'],
         // <boolean> show full backtrace for errors
         backtrace: false,
         // <string[]> ("extension:module") require files with the given EXTENSION after requiring MODULE (repeatable)
@@ -186,7 +200,7 @@ export const config: Options.Testrunner = {
         // <string> (expression) only execute the features or scenarios with tags matching the expression
         tagExpression: '',
         // <number> timeout for step definitions
-        timeout: 60000,
+        timeout: 240000,
         // <boolean> Enable this config to treat undefined definitions as warnings.
         ignoreUndefinedDefinitions: false
     },
@@ -245,6 +259,7 @@ export const config: Options.Testrunner = {
      */
     // before: function (capabilities, specs) {
     // },
+
     /**
      * Runs before a WebdriverIO command gets executed.
      * @param {String} commandName hook command name
@@ -291,6 +306,12 @@ export const config: Options.Testrunner = {
      */
     // afterStep: function (step, scenario, result, context) {
     // },
+
+    afterStep: async function (step, scenario, { error, duration, passed }, context) {
+        if (error) {
+          await browser.takeScreenshot();
+        }
+      },
     /**
      *
      * Runs after a Cucumber Scenario.
@@ -348,6 +369,7 @@ export const config: Options.Testrunner = {
      */
     // onComplete: function(exitCode, config, capabilities, results) {
     // },
+
     /**
     * Gets executed when a refresh happens.
     * @param {String} oldSessionId session ID of the old session
